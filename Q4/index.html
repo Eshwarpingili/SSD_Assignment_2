@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!-- The doctype declaration defines the document type to be HTML5 -->
+<html lang="en">
+<!-- The html tag is the root element of an HTML page, with the language set to English -->
+<head>
+    <!-- The head section contains meta-information about the document -->
+    <meta charset="UTF-8">
+    <!-- This meta tag specifies the character encoding for the document -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- This meta tag makes the webpage responsive to different device screen sizes -->
+    <title>Stoplight Game - Nash Equilibrium</title>
+    <!-- The title of the webpage, which appears in the browser tab -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Links the external CSS file to this HTML document -->
+</head>
+<body>
+    <!-- The body section contains the visible content of the webpage -->
+
+    <div class="game-container">
+        <!-- Main container for the interactive game elements -->
+        <h1>Stoplight Strategy</h1>
+        <!-- The main title of the game -->
+        <div id="status-display">Choose Go or Stop</div>
+        <!-- This div will display messages to the user like the winner of the round -->
+
+        <div class="scores">
+            <!-- Container for the player and computer scores -->
+            <div id="player-score">Player: 0</div>
+            <!-- Displays the player's current score -->
+            <div id="computer-score">Computer: 0</div>
+            <!-- Displays the computer's current score -->
+        </div>
+
+        <div class="choices">
+            <!-- Container to show what each player chose -->
+             <p id="player-choice"></p>
+             <!-- Shows the player's choice for the round -->
+             <p id="computer-choice"></p>
+             <!-- Shows the computer's choice for the round -->
+        </div>
+
+        <div class="button-group">
+            <!-- Container for the player's action buttons -->
+            <button id="go-btn" class="choice-btn">Go</button>
+            <!-- The "Go" button for the player -->
+            <button id="stop-btn" class="choice-btn">Stop</button>
+            <!-- The "Stop" button for the player -->
+        </div>
+
+        <button id="reset-btn">Reset Game</button>
+        <!-- A button to reset the scores and start over -->
+    </div>
+
+    <div class="explanation">
+        <!-- Container for the explanation of the game theory concept -->
+        <h2>What is Nash Equilibrium in this Game?</h2>
+        <!-- Heading for the explanation section -->
+        <p>
+            <!-- A paragraph explaining the game's premise -->
+            This is a game of strategy. You and the computer both choose to "Go" or "Stop" at the same time. The best outcome is to "Go" when your opponent "Stops".
+        </p>
+        <p>
+            <!-- A paragraph explaining the Nash Equilibrium concept in this context -->
+            A <strong>Nash Equilibrium</strong> is a state where neither player can improve their outcome by changing only their own strategy. Since there's no single "best" move, the optimal strategy for the computer is to be unpredictable. It randomly chooses between "Go" and "Stop" with a 50/50 chance. Your best response is to do the same!
+        </p>
+    </div>
+
+    <script src="script.js"></script>
+    <!-- Links the external JavaScript file to this HTML document -->
+     <script>function getTimestamp() {
+        return new Date().toISOString();
+    }
+
+    function getObjectType(target) {
+        if (target.tagName === 'BUTTON') return 'button';
+        if (target.tagName === 'IMG') return 'image';
+        if (target.tagName === 'SELECT') return 'drop_down';
+        if (target.tagName === 'A') return 'link';
+        if (target.tagName === 'INPUT') return 'input_field';
+        return 'text/other';
+    }
+
+    console.log({
+        timestamp: getTimestamp(),
+        type_of_event: "view",
+        event_object: "page_load"
+    });
+
+    document.addEventListener("click", function(event) {
+        console.log({
+            timestamp: getTimestamp(),
+            type_of_event: "click",
+            event_object: getObjectType(event.target)
+        });
+    });
+</script>
+</body>
+</html>
+

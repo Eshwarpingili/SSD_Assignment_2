@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jigsaw Puzzle</title>
+    <!-- Use Tailwind CSS for a modern look -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        canvas {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+            max-width: 100%;
+            touch-action: none; /* Prevent browser touch actions */
+            border: 2px solid #6366f1;
+        }
+        .file-input-label {
+            display: inline-block;
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            background-color: #6366f1;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .file-input-label:hover {
+            background-color: #4f46e5;
+        }
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+        .message-box {
+            background-color: #d1d5db;
+            color: #374151;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            display: none; /* Hidden by default */
+        }
+        .congratulations-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="mainUI" class="flex flex-col items-center max-w-2xl w-full">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight">Jigsaw Puzzle</h1>
+        <p class="mt-2 text-base text-gray-600">Upload an image to start a new puzzle.</p>
+        
+        <div class="controls-container mt-6">
+            <!-- Difficulty Dropdown: Value is now [Rows, Columns] -->
+            <div class="flex items-center gap-2">
+                <label for="difficultySelect" class="text-gray-700 font-semibold">Number of Pieces:</label>
+                <select id="difficultySelect" class="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <!-- Grid calculated for closest rectangular shape: -->
+                    <option value="1,5">5 pieces</option>        <!-- 1 row x 5 columns -->
+                    <option value="4,5">20 pieces</option>       <!-- 4 rows x 5 columns -->
+                    <option value="5,8">40 pieces</option>       <!-- 5 rows x 8 columns -->
+                    <option value="8,10">80 pieces</option>      <!-- 8 rows x 10 columns -->
+                    <option value="10,10">100 pieces</option>    <!-- 10 rows x 10 columns -->
+                </select>
+            </div>
+            <label for="imageUpload" class="file-input-label">
+                <span id="uploadButtonText">Select Image</span>
+                <input type="file" id="imageUpload" class="hidden" accept="image/*">
+            </label>
+            <button id="startButton" class="px-6 py-3 bg-green-500 text-white font-bold rounded-full shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                Start Puzzle
+            </button>
+            <button id="shuffleButton" class="px-6 py-3 bg-indigo-500 text-white font-bold rounded-full shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                Shuffle Pieces
+            </button>
+            <button id="doneButton" class="px-6 py-3 bg-yellow-500 text-white font-bold rounded-full shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                Done!
+            </button>
+        </div>
+        
+        <div id="messageBox" class="message-box"></div>
+        
+        <canvas id="puzzleCanvas"></canvas>
+    </div>
+
+    <!-- Congratulations Page -->
+    <div id="congratulationsPage" class="congratulations-page">
+        <h2 class="text-6xl font-extrabold text-green-600 mb-4">Congratulations!</h2>
+        <p class="text-xl text-gray-700 mb-8">You have successfully solved the puzzle!</p>
+        <button id="playAgainButton" class="px-8 py-4 bg-purple-600 text-white text-lg font-bold rounded-full shadow-lg transition-transform transform hover:scale-105">
+            Play Again
+        </button>
+    </div>
+
+    <script>
+        // Use a self-invoking function to avoid polluting the global scope
+        (function() {
+            // Global variables and constants
+            const mainUI = document.getElementById('mainUI');
+            const congratulationsPage = document.getElementById('congratulationsPage');
+            const canvas = document.getElementById('puzzleCanvas');
+            const ctx = canvas.getContext('2d');
+            const imageUpload = document.getElementById('imageUpload');
+            const startButton = document.getElementById('startButton');
+            const shuffleButton = document.getElementById('shuffleButton');
+            const doneButton = document.getElementById('doneButton');
+            const playAgainButton = document.getElementById('playAgainButton');
+            const difficultySelect = document.getElementById('difficultySelect');
+            const messageBox = document.getElementById('messageBox');
+            let originalImage = new Image();
+            let puzzlePieces = [];
+            // Initialize with default grid dimensions (3x3 = 9 pieces)
+            let numRows = 3;
+            let numCols = 3; 
+            let pieceWidth, pieceHeight;
+            let currentDraggingPiece = null;
+            let startDragX = 0;
+            let startDragY = 0;
+            let isSolved = false;
+            let isDragging = false;
+            
+            // This function handles the file selection and image loading
+            imageUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    originalImage.onload = function() {
+                        // Once the image is loaded, enable the start button
+                        startButton.disabled = false;
+                        showMessage("Image loaded. Click 'Start Puzzle' to begin!", "bg-green-100 text-green-800");
+                        drawOriginalImage();
+                    };
+                    originalImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Draws the full image on the canvas
+            function drawOriginalImage() {
+                canvas.width = originalImage.width;
+                canvas.height = originalImage.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+            }
+
+            // Initializes and shuffles the puzzle
+            startButton.addEventListener('click', function() {
+                if (originalImage.src) {
+                    // Parse the selected value [Rows, Columns]
+                    const [rows, cols] = difficultySelect.value.split(',').map(Number);
+                    numRows = rows;
+                    numCols = cols; 
+
+                    isSolved = false;
+                    startButton.disabled = true;
+                    shuffleButton.disabled = false;
+                    doneButton.disabled = false;
+                    createPuzzlePieces();
+                    shufflePieces();
+                    drawPuzzle();
+                    showMessage(`Puzzle started! Total pieces: ${numRows * numCols}.`, "bg-blue-100 text-blue-800");
+                }
+            });
+
+            // Re-shuffles the puzzle pieces
+            shuffleButton.addEventListener('click', function() {
+                if (!isSolved && originalImage.src) {
+                    shufflePieces();
+                    drawPuzzle();
+                    showMessage("Pieces have been reshuffled!", "bg-indigo-100 text-indigo-800");
+                }
+            });
+            
+            // Checks if the puzzle is solved and shows congratulations page if so
+            doneButton.addEventListener('click', function() {
+                if (checkWinCondition()) {
+                    showMessage("You're a puzzle master! You solved it!", "bg-yellow-100 text-yellow-800");
+                    drawOriginalImage(); // Draw the solved image
+                    mainUI.style.display = 'none';
+                    congratulationsPage.style.display = 'flex';
+                    isSolved = true;
+                } else {
+                    showMessage("Not quite there yet! Keep going!", "bg-red-100 text-red-800");
+                }
+            });
+
+            // Play again button listener
+            playAgainButton.addEventListener('click', function() {
+                congratulationsPage.style.display = 'none';
+                mainUI.style.display = 'flex';
+                isSolved = false;
+                shuffleButton.disabled = true;
+                doneButton.disabled = true;
+                drawOriginalImage();
+                document.getElementById('uploadButtonText').textContent = "Select Image";
+            });
+
+            // Creates an array of puzzle piece objects
+            function createPuzzlePieces() {
+                puzzlePieces = [];
+                // Calculate width and height based on the new rectangular grid dimensions
+                pieceWidth = originalImage.width / numCols; 
+                pieceHeight = originalImage.height / numRows;
+
+                for (let row = 0; row < numRows; row++) {
+                    for (let col = 0; col < numCols; col++) {
+                        const piece = {
+                            origRow: row, // Original grid row
+                            origCol: col, // Original grid column
+                            x: 0, // Current x position on canvas
+                            y: 0, // Current y position on canvas
+                            w: pieceWidth,
+                            h: pieceHeight
+                        };
+                        puzzlePieces.push(piece);
+                    }
+                }
+            }
+
+            // Shuffles the puzzle pieces and places them on the canvas
+            function shufflePieces() {
+                // Fisher-Yates shuffle algorithm
+                for (let i = puzzlePieces.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [puzzlePieces[i], puzzlePieces[j]] = [puzzlePieces[j], puzzlePieces[i]];
+                }
+                
+                // Assign new (shuffled) positions based on the new rectangular grid
+                puzzlePieces.forEach((piece, index) => {
+                    // Calculate the new row and column based on the index and number of columns
+                    const newRow = Math.floor(index / numCols); 
+                    const newCol = index % numCols;
+                    piece.currRow = newRow;
+                    piece.currCol = newCol;
+                    piece.x = newCol * pieceWidth;
+                    piece.y = newRow * pieceHeight;
+                });
+            }
+
+            // Main drawing function
+            function drawPuzzle() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                puzzlePieces.forEach(piece => {
+                    // Draw the image segment onto the canvas
+                    ctx.drawImage(
+                        originalImage, 
+                        piece.origCol * pieceWidth, piece.origRow * pieceHeight, pieceWidth, pieceHeight,
+                        piece.x, piece.y, pieceWidth, pieceHeight
+                    );
+                });
+            }
+
+            // Event listeners for dragging functionality
+            canvas.addEventListener('mousedown', function(e) {
+                if (isSolved) return;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+                
+                currentDraggingPiece = findPieceAt(mouseX, mouseY);
+                if (currentDraggingPiece) {
+                    isDragging = true;
+                    startDragX = mouseX - currentDraggingPiece.x;
+                    startDragY = mouseY - currentDraggingPiece.y;
+                }
+            });
+
+            canvas.addEventListener('mousemove', function(e) {
+                if (!isDragging || isSolved) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+                
+                currentDraggingPiece.x = mouseX - startDragX;
+                currentDraggingPiece.y = mouseY - startDragY;
+                
+                drawPuzzle();
+            });
+
+            canvas.addEventListener('mouseup', function(e) {
+                if (!isDragging || isSolved) return;
+                
+                isDragging = false;
+                
+                // Snap to the nearest grid position based on rectangular piece size
+                const targetCol = Math.round(currentDraggingPiece.x / pieceWidth);
+                const targetRow = Math.round(currentDraggingPiece.y / pieceHeight);
+                
+                // Find the piece that is currently at the target position
+                const targetPiece = puzzlePieces.find(p => p.currCol === targetCol && p.currRow === targetRow);
+
+                if (targetPiece) {
+                    // Swap positions of the two pieces
+                    const tempCol = currentDraggingPiece.currCol;
+                    const tempRow = currentDraggingPiece.currRow;
+                    currentDraggingPiece.currCol = targetPiece.currCol;
+                    currentDraggingPiece.currRow = targetPiece.currRow;
+                    targetPiece.currCol = tempCol;
+                    targetPiece.currRow = tempRow;
+                    
+                    // Update canvas coordinates
+                    currentDraggingPiece.x = currentDraggingPiece.currCol * pieceWidth;
+                    currentDraggingPiece.y = currentDraggingPiece.currRow * pieceHeight;
+                    targetPiece.x = targetPiece.currCol * pieceWidth;
+                    targetPiece.y = targetPiece.currRow * pieceHeight;
+                    
+                } else {
+                    // If no piece is at the target, just snap the piece to the new position
+                    currentDraggingPiece.currCol = targetCol;
+                    currentDraggingPiece.currRow = targetRow;
+                    currentDraggingPiece.x = targetCol * pieceWidth;
+                    currentDraggingPiece.y = targetRow * pieceHeight;
+                }
+                
+                drawPuzzle();
+                checkWinCondition();
+                
+                currentDraggingPiece = null;
+            });
+            
+            // Touch events for mobile
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                canvas.dispatchEvent(new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                }));
+            });
+
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                canvas.dispatchEvent(new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                }));
+            });
+
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                canvas.dispatchEvent(new MouseEvent('mouseup', {}));
+            });
+
+            // Helper function to find which piece is under the mouse
+            function findPieceAt(x, y) {
+                for (let i = puzzlePieces.length - 1; i >= 0; i--) {
+                    const p = puzzlePieces[i];
+                    if (x > p.x && x < p.x + p.w && y > p.y && y < p.y + p.h) {
+                        // Move the selected piece to the end of the array to draw it on top
+                        puzzlePieces.splice(i, 1);
+                        puzzlePieces.push(p);
+                        return p;
+                    }
+                }
+                return null;
+            }
+
+            // Checks if the puzzle is solved
+            function checkWinCondition() {
+                return puzzlePieces.every(piece => piece.origRow === piece.currRow && piece.origCol === piece.currCol);
+            }
+
+            // Displays messages to the user
+            function showMessage(text, className) {
+                messageBox.textContent = text;
+                messageBox.className = "message-box " + className;
+                messageBox.style.display = 'block';
+            }
+        })();
+    </script>
+    <script>function getTimestamp() {
+        return new Date().toISOString();
+    }
+
+    function getObjectType(target) {
+        if (target.tagName === 'BUTTON') return 'button';
+        if (target.tagName === 'IMG') return 'image';
+        if (target.tagName === 'SELECT') return 'drop_down';
+        if (target.tagName === 'A') return 'link';
+        if (target.tagName === 'INPUT') return 'input_field';
+        return 'text/other';
+    }
+
+    console.log({
+        timestamp: getTimestamp(),
+        type_of_event: "view",
+        event_object: "page_load"
+    });
+
+    document.addEventListener("click", function(event) {
+        console.log({
+            timestamp: getTimestamp(),
+            type_of_event: "click",
+            event_object: getObjectType(event.target)
+        });
+    });
+</script>
+</body>
+</html>

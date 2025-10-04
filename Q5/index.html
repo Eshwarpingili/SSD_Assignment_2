@@ -1,0 +1,1215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Data Dictionary & ER Diagram Tool — Q5 (Double-ellipse + Dotted Derived)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a202c;
+      --bg-tertiary: #2d3748;
+      --card-bg: #1e2328;
+      --card-border: rgba(255,255,255,0.08);
+      --text-primary: #ffffff;
+      --text-secondary: #a0aec0;
+      --text-muted: #718096;
+      --accent-primary: #4299e1;
+      --accent-secondary: #63b3ed;
+      --accent-tertiary: #90cdf4;
+      --success: #48bb78;
+      --warning: #ed8936;
+      --error: #f56565;
+      --glass: rgba(255,255,255,0.06);
+      --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    *::selection {
+      background: var(--accent-primary);
+      color: white;
+    }
+    
+    html,body{
+      height:100%;
+      margin:0;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .container{
+      max-width:1400px;
+      margin:0 auto;
+      padding:24px;
+      min-height: 100vh;
+    }
+    
+    header{
+      display:flex;
+      gap:20px;
+      align-items:center;
+      margin-bottom:32px;
+      padding:24px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    
+    header h1{
+      margin:0;
+      font-size:28px;
+      font-weight:700;
+      color:var(--text-primary);
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    header p{
+      margin:0;
+      color:var(--text-muted);
+      font-size:16px;
+      font-weight:400;
+    }
+    .panel{
+      display:grid;
+      grid-template-columns:400px 1fr;
+      gap:24px;
+      align-items:start;
+    }
+    
+    .card{
+      background:var(--card-bg);
+      border-radius:12px;
+      padding:20px;
+      box-shadow:var(--shadow-lg);
+      border:1px solid var(--card-border);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover{
+      box-shadow:var(--shadow-xl);
+      border-color: var(--accent-tertiary);
+    }
+    
+    .controls{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+    
+    label{
+      font-size:14px;
+      font-weight:600;
+      color:var(--text-primary);
+      display:block;
+      margin-bottom:8px;
+    }
+    
+    textarea{
+      width:100%;
+      height:180px;
+      border-radius:8px;
+      padding:12px;
+      border:1px solid var(--card-border);
+      background:var(--glass);
+      color:var(--text-primary);
+      resize:vertical;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size:13px;
+      line-height:1.5;
+      transition: all 0.2s ease;
+    }
+    
+    textarea:focus{
+      outline:none;
+      border-color:var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    }
+    
+    input[type=file]{
+      color:var(--text-secondary);
+      padding:8px;
+      border-radius:6px;
+      border:1px solid var(--card-border);
+      background:var(--glass);
+    }
+    
+    select{
+      padding:8px 12px;
+      border-radius:6px;
+      border:1px solid var(--card-border);
+      background:var(--card-bg);
+      color:var(--text-primary);
+      font-size:14px;
+    }
+    
+    button{
+      background:linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color:white;
+      border:0;
+      padding:10px 16px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:14px;
+      transition:all 0.3s ease;
+      box-shadow:0 4px 12px rgba(66, 153, 225, 0.3);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    
+    button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(66, 153, 225, 0.4);
+      background:linear-gradient(135deg, var(--accent-secondary), var(--accent-tertiary));
+    }
+    
+    button:active{
+      transform:translateY(0);
+    }
+    .small{
+      font-size:12px;
+      color:var(--text-muted);
+      line-height:1.4;
+    }
+    
+    .row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    
+    .diagram{
+      height:600px;
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid var(--card-border);
+      background:linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+      box-shadow:inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .glossary{
+      margin-top:20px;
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+      gap:16px;
+    }
+    
+    .table-card{
+      background:linear-gradient(145deg, var(--card-bg), rgba(255,255,255,0.02));
+      padding:16px;
+      border-radius:10px;
+      border:1px solid var(--card-border);
+      transition:all 0.3s ease;
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+    }
+    
+    .table-card::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:3px;
+      background:linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      opacity:0;
+      transition:opacity 0.3s ease;
+    }
+    
+    .table-card:hover{
+      transform:translateY(-2px);
+      box-shadow:var(--shadow-lg);
+      border-color:var(--accent-primary);
+    }
+    
+    .table-card:hover::before{
+      opacity:1;
+    }
+    
+    .table-card h3{
+      margin:0 0 12px 0;
+      font-size:18px;
+      font-weight:700;
+      color:var(--text-primary);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    
+    .table-card h3::before{
+      content:'🗄️';
+      font-size:16px;
+    }
+    
+    .col-list{
+      margin:0;
+      padding:0;
+      list-style:none;
+      font-size:13px;
+    }
+    
+    .col-list li{
+      padding:10px 12px;
+      border-radius:8px;
+      background:rgba(255,255,255,0.03);
+      margin-bottom:8px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      transition:all 0.2s ease;
+      border:1px solid transparent;
+    }
+    
+    .col-list li:hover{
+      background:rgba(66, 153, 225, 0.1);
+      border-color:var(--accent-primary);
+    }
+    
+    .badge{
+      font-size:10px;
+      font-weight:600;
+      padding:4px 8px;
+      border-radius:12px;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      display:inline-flex;
+      align-items:center;
+      gap:3px;
+    }
+    
+    .controls .hint{
+      font-size:12px;
+      color:var(--text-muted);
+      font-style:italic;
+      margin-top:4px;
+    }
+    
+    .top-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    
+    .help{
+      font-size:13px;
+      color:var(--text-secondary);
+      line-height:1.6;
+      background:rgba(255,255,255,0.02);
+      padding:12px;
+      border-radius:8px;
+      border-left:3px solid var(--accent-primary);
+    }
+    
+    .sample-load{
+      background:transparent;
+      border:1px dashed var(--accent-primary);
+      padding:8px 12px;
+      border-radius:8px;
+      color:var(--accent-primary);
+      font-size:12px;
+      transition:all 0.2s ease;
+    }
+    
+    .sample-load:hover{
+      background:var(--accent-primary);
+      color:white;
+      transform:none;
+      box-shadow:none;
+    }
+    
+    .flex-between{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+    
+    .notice{
+      background:linear-gradient(135deg, rgba(66, 153, 225, 0.1), rgba(72, 187, 120, 0.05));
+      border-left:4px solid var(--accent-primary);
+      padding:16px;
+      border-radius:8px;
+      color:var(--text-secondary);
+      font-size:13px;
+      line-height:1.5;
+    }
+    
+    .notice strong{
+      color:var(--text-primary);
+      font-weight:600;
+    }
+    
+    pre{
+      background:var(--bg-primary);
+      padding:16px;
+      border-radius:8px;
+      color:var(--text-secondary);
+      overflow:auto;
+      font-family:'JetBrains Mono', 'Fira Code', monospace;
+      font-size:12px;
+      line-height:1.5;
+      border:1px solid var(--card-border);
+    }
+    
+    code{
+      background:rgba(66, 153, 225, 0.1);
+      color:var(--accent-secondary);
+      padding:2px 6px;
+      border-radius:4px;
+      font-family:'JetBrains Mono', 'Fira Code', monospace;
+      font-size:12px;
+    }
+    
+    hr{
+      border:none;
+      border-top:1px solid var(--card-border);
+      margin:20px 0;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 1024px) {
+      .panel {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .container {
+        padding: 16px;
+      }
+      
+      header h1 {
+        font-size: 24px;
+      }
+      
+      .glossary {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .top-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .diagram {
+        height: 400px;
+      }
+    }
+  </style>
+
+  <!-- Cytoscape.js (graph rendering) -->
+  <script src="https://unpkg.com/cytoscape@3.24.0/dist/cytoscape.min.js"></script>
+
+  <!-- html2pdf (pdf export) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Professional Data Dictionary & ER Diagram Tool</h1>
+        <p>A comprehensive tool for generating data dictionaries and Entity-Relationship diagrams from database schemas. Supports JSON/XML input, interactive visualization, and professional export options.</p>
+      </div>
+    </header>
+
+    <div class="panel">
+      <div class="card">
+        <div class="controls">
+          <div class="flex-between">
+            <div>
+              <label for="format">Input Format</label>
+              <select id="format">
+                <option value="json">JSON</option>
+                <option value="xml">XML</option>
+              </select>
+            </div>
+            <div style="text-align:right">
+              <label class="small">Sample schema</label><br/>
+              <button id="load-sample" class="sample-load">Load sample</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="file">Upload input file (or paste below)</label>
+            <input id="file" type="file" accept=".json,.xml,.txt"/>
+            <div class="hint small">Supported: schema.json, schema.xml or plain text. You can paste schema into the textarea.</div>
+          </div>
+
+          <div>
+            <label for="input">Schema Input (paste/edit)</label>
+            <textarea id="input" placeholder="Paste JSON or XML schema here..."></textarea>
+          </div>
+
+          <div class="row">
+            <button id="parse">Parse & Generate</button>
+            <button id="download-html">Download HTML</button>
+            <button id="download-pdf">Download PDF</button>
+            <button id="clear" style="background:#2c2f33;color:#fff">Clear</button>
+          </div>
+
+          <div class="notice">
+            <strong>Tip:</strong> If your DB engine is MySQL/Postgres/SQLite, check the instructions below to export schema into a JSON or XML structure compatible with this tool.
+          </div>
+
+          <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03)"/>
+
+          <div>
+            <label>Quick schema examples (this tool expects structure: <code>{ "tables":[...], "relationships":[...] }</code>)</label>
+            <div class="small help">
+              Example JSON uses <code>tables</code> array. Each table has <code>name</code>, <code>columns</code> array. Each column can include <code>type</code>, <code>primary_key</code>, <code>nullable</code>, <code>foreign_key</code>OR add explicit <code>relationships</code> array.
+            </div>
+          </div>
+
+           <div>
+            <label>Generate Input From Own Database</label>
+            <div class="small help">
+              <strong>MySQL (information_schema):</strong>
+              <pre>SELECT TABLE_NAME, COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = 'your_database_name';</pre>
+
+              <strong>Postgres (information_schema):</strong>
+              <pre>SELECT table_schema, table_name, column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_catalog = 'your_database_name' AND table_schema NOT IN ('pg_catalog','information_schema');</pre>
+
+              <strong>SQLite (sqlite_master / pragma):</strong>
+              <pre>-- list tables
+SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';
+
+-- get table ddl
+SELECT sql FROM sqlite_master WHERE type='table' AND name = 'your_table_name';
+
+-- column info for a table
+PRAGMA table_info('your_table_name');</pre>
+
+              <div class="small" style="margin-top:8px;color:var(--muted)">
+                Tip: these queries return the basic metadata (table names, column names, types, nullability, keys). You can transform their output into the JSON structure this tool expects (<code>{ "tables":[...], "relationships":[...] }</code>).
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="flex-between" style="margin-bottom:8px">
+            <div>
+              <label style="margin-bottom:4px">Diagram</label>
+              <div class="small">ER diagram (Chen notation). Click a node to highlight its table card.</div>
+            </div>
+            <div class="top-actions">
+              <label class="small">Layout:</label>
+              <select id="layout-select">
+                <option value="cose">cose (auto)</option>
+                <option value="breadthfirst">breadthfirst</option>
+                <option value="grid">grid</option>
+                <option value="circle">circle</option>
+              </select>
+              <button id="fit">Fit</button>
+            </div>
+          </div>
+
+          <div id="cy" class="diagram"></div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="margin:0;color:#fff">Data Dictionary (Glossary)</h3>
+            <div class="small">Click table cards to collapse/expand.</div>
+          </div>
+          <div id="glossary" class="glossary" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* Full file with:
+   - Multivalued: outer labeled ellipse + invisible inner helper.
+   - Derived: dotted outer labeled ellipse + invisible inner helper.
+   - Skips unnamed columns to avoid placeholders.
+   - Exports include FULL styled glossary.
+   - Export headings (H1/H2/H3) are bold black.
+*/
+
+function q(id){return document.getElementById(id)}
+function el(tag,cls){ const e=document.createElement(tag); if(cls) e.className=cls; return e; }
+function safeText(s){ return (s===undefined||s===null) ? '' : String(s); }
+
+// ---------- Default sample schema ----------
+const SAMPLE_SCHEMA_JSON = {
+  "tables": [
+    {
+      "name": "University",
+      "columns": [
+        {"name":"UniversityID","type":"INT","primary_key":true},
+        {"name":"Name","type":"VARCHAR(100)","nullable":false},
+        {"name":"EstablishedYear","type":"INT"},
+        {"name":"Locations","type":"VARCHAR(255)","multivalued":true},
+        {"name":"TotalStudents","type":"INT","derived":true},
+        {"name":"Website","type":"VARCHAR(255)"}
+      ]
+    },
+    {
+      "name":"Department",
+      "columns":[
+        {"name":"DeptID","type":"INT","primary_key":true},
+        {"name":"DeptName","type":"VARCHAR(80)","nullable":false},
+        {"name":"HeadOfDept","type":"VARCHAR(100)"},
+        {"name":"UniversityID","type":"INT","foreign_key":"University.UniversityID","nullable":false},
+        {"name":"Budget","type":"DECIMAL(12,2)"},
+        {"name":"ResearchAreas","type":"TEXT","multivalued":true}
+      ]
+    },
+    {
+      "name":"Student",
+      "columns":[
+        {"name":"StudentID","type":"INT","primary_key":true},
+        {"name":"FirstName","type":"VARCHAR(50)","nullable":false},
+        {"name":"LastName","type":"VARCHAR(50)","nullable":false},
+        {"name":"Email","type":"VARCHAR(150)","nullable":false},
+        {"name":"DeptID","type":"INT","foreign_key":"Department.DeptID"},
+        {"name":"EnrollmentDate","type":"DATE"},
+        {"name":"GPA","type":"DECIMAL(3,2)"},
+        {"name":"Age","type":"INT","derived":true},
+        {"name":"Skills","type":"VARCHAR(500)","multivalued":true}
+      ]
+    },
+    {
+      "name":"Course",
+      "columns":[
+        {"name":"CourseID","type":"INT","primary_key":true},
+        {"name":"CourseName","type":"VARCHAR(100)","nullable":false},
+        {"name":"Credits","type":"INT","nullable":false},
+        {"name":"DeptID","type":"INT","foreign_key":"Department.DeptID"},
+        {"name":"Prerequisites","type":"VARCHAR(255)","multivalued":true},
+        {"name":"Description","type":"TEXT"}
+      ]
+    },
+    {
+      "name":"Professor",
+      "columns":[
+        {"name":"ProfessorID","type":"INT","primary_key":true},
+        {"name":"FirstName","type":"VARCHAR(50)","nullable":false},
+        {"name":"LastName","type":"VARCHAR(50)","nullable":false},
+        {"name":"Email","type":"VARCHAR(150)","nullable":false},
+        {"name":"DeptID","type":"INT","foreign_key":"Department.DeptID"},
+        {"name":"Salary","type":"DECIMAL(10,2)"},
+        {"name":"Specializations","type":"VARCHAR(300)","multivalued":true},
+        {"name":"TotalPublications","type":"INT","derived":true}
+      ]
+    },
+    {
+      "name":"Enrollment",
+      "columns":[
+        {"name":"EnrollmentID","type":"INT","primary_key":true},
+        {"name":"StudentID","type":"INT","foreign_key":"Student.StudentID","nullable":false},
+        {"name":"CourseID","type":"INT","foreign_key":"Course.CourseID","nullable":false},
+        {"name":"Semester","type":"VARCHAR(20)","nullable":false},
+        {"name":"Year","type":"INT","nullable":false},
+        {"name":"Grade","type":"CHAR(2)"},
+        {"name":"EnrollmentDate","type":"DATE"}
+      ]
+    }
+  ],
+  "relationships":[
+    {"name":"Belongs_To","entities":["Department","University"], "cardinality": {"Department":"n","University":"1"}},
+    {"name":"Enrolls_In","entities":["Student","Department"], "cardinality": {"Student":"n","Department":"1"}},
+    {"name":"Offers","entities":["Department","Course"], "cardinality": {"Department":"1","Course":"n"}},
+    {"name":"Works_In","entities":["Professor","Department"], "cardinality": {"Professor":"n","Department":"1"}},
+    {"name":"Takes","entities":["Student","Course"], "cardinality": {"Student":"n","Course":"m"}, "through":"Enrollment"},
+    {"name":"Teaches","entities":["Professor","Course"], "cardinality": {"Professor":"1","Course":"n"}}
+  ]
+};
+
+// ---------- Parsing input ----------
+function parseJSONInput(str){
+  try{
+    const parsed = JSON.parse(str);
+    if(!parsed.tables || !Array.isArray(parsed.tables)){
+      throw new Error("JSON schema must contain a top-level 'tables' array.");
+    }
+    const schema = { tables: [], relationships: [] };
+    for(const t of parsed.tables){
+      const table = { name: t.name, columns: [] };
+      for(const c of (t.columns||[])){
+        table.columns.push({
+          name: c.name,
+          type: c.type || '',
+          primary_key: !!c.primary_key,
+          nullable: c.nullable !== undefined ? !!c.nullable : true,
+          foreign_key: c.foreign_key || null,
+          multivalued: !!c.multivalued,
+          derived: !!c.derived
+        });
+        if(c.foreign_key){
+          if(typeof c.foreign_key === 'string'){
+            const parts = c.foreign_key.split('.');
+            if(parts.length===2){
+              schema.relationships.push({
+                name: t.name + '_fk_' + c.name,
+                entities: [t.name, parts[0]],
+                cardinality: { [t.name]:'n', [parts[0]]:'1' },
+                fromCol: c.name,
+                toCol: parts[1],
+                auto: true
+              });
+            }
+          } else if(typeof c.foreign_key === 'object' && c.foreign_key.table){
+            schema.relationships.push({
+              name: t.name + '_fk_' + c.name,
+              entities: [t.name, c.foreign_key.table],
+              cardinality: { [t.name]:'n', [c.foreign_key.table]:'1' },
+              fromCol: c.name,
+              toCol: c.foreign_key.column || '',
+              auto: true
+            });
+          }
+        }
+      }
+      schema.tables.push(table);
+    }
+    if(parsed.relationships && Array.isArray(parsed.relationships)){
+      for(const r of parsed.relationships){
+        const rel = {
+          name: r.name || r.rel || 'rel_'+Math.random().toString(36).slice(2,7),
+          entities: r.entities || (r.fromTable && r.toTable ? [r.fromTable, r.toTable] : []),
+          cardinality: r.cardinality || {}
+        };
+        schema.relationships.push(rel);
+      }
+    }
+    return schema;
+  }catch(err){
+    console.error("JSON parsing failed:", err);
+    throw new Error("Invalid JSON format: " + err.message + ". Please check your JSON syntax and ensure it follows the required structure.");
+  }
+}
+
+function parseXMLInput(str){
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(str, "application/xml");
+  const parseError = doc.querySelector("parsererror");
+  if(parseError) throw new Error("XML parse error: " + parseError.textContent);
+  const schema = { tables: [], relationships: [] };
+  const tableEls = doc.querySelectorAll("table");
+  tableEls.forEach(t=>{
+    const name = t.getAttribute("name") || t.querySelector("name")?.textContent;
+    const table = { name: name, columns: [] };
+    const colEls = t.querySelectorAll("column");
+    colEls.forEach(c=>{
+      const colName = c.getAttribute("name") || c.querySelector("name")?.textContent || '';
+      const type = c.getAttribute("type") || c.querySelector("type")?.textContent || '';
+      const pk = (c.getAttribute("primary_key")==='true') || (c.querySelector("primary_key")?.textContent==='true');
+      const nullableAttr = c.getAttribute("nullable");
+      const nullable = nullableAttr ? nullableAttr==='true' : true;
+      const fk = c.getAttribute("foreign_key") || c.querySelector("foreign_key")?.textContent || null;
+      const multivalued = (c.getAttribute("multivalued")==='true') || (c.querySelector("multivalued")?.textContent==='true');
+      const derived = (c.getAttribute("derived")==='true') || (c.querySelector("derived")?.textContent==='true');
+      table.columns.push({name:colName,type:type,primary_key:pk,nullable:nullable,foreign_key:fk,multivalued:multivalued,derived:derived});
+      if(fk){
+        const parts = fk.split('.');
+        schema.relationships.push({
+          name: name + '_fk_' + colName,
+          entities: [name, parts[0]],
+          cardinality: { [name]:'n', [parts[0]]:'1' },
+          fromCol: colName,
+          toCol: parts[1] || '',
+          auto: true
+        });
+      }
+    });
+    schema.tables.push(table);
+  });
+  const relEls = doc.querySelectorAll("relationship");
+  relEls.forEach(r=>{
+    schema.relationships.push({
+      name: r.getAttribute("name") || r.querySelector("name")?.textContent || 'rel_'+Math.random().toString(36).slice(2,7),
+      entities: [ r.getAttribute("fromTable") || r.querySelector("fromTable")?.textContent, r.getAttribute("toTable") || r.querySelector("toTable")?.textContent ].filter(Boolean),
+      cardinality: {} // optional
+    });
+  });
+  return schema;
+}
+
+// ---------- Render glossary ----------
+function renderGlossary(schema){
+  const container = q('glossary');
+  container.innerHTML = '';
+  for(const t of schema.tables){
+    const card = el('div','table-card');
+    const header = el('div');
+    const h3 = el('h3');
+    h3.textContent = t.name;
+    header.appendChild(h3);
+    card.appendChild(header);
+
+    const ul = el('ul','col-list');
+    for(const c of t.columns){
+      if(!c.name || String(c.name).trim()==='') continue;
+      const li = el('li');
+      const left = el('div');
+      left.innerHTML = '<strong style="color:var(--text-primary)">' + c.name + '</strong><div style="font-size:12px;color:var(--text-muted)">' + safeText(c.type) + '</div>';
+      const right = el('div');
+      right.style.display = 'flex';
+      right.style.alignItems = 'center';
+      right.style.gap = '6px';
+      if(c.primary_key) right.appendChild(buildBadge('PK','rgba(255,165,0,0.12)'));
+      if(c.foreign_key) right.appendChild(buildBadge('FK','rgba(24,169,153,0.12)'));
+      if(!c.nullable) right.appendChild(buildBadge('NOT NULL','rgba(220,53,69,0.08)'));
+      if(c.multivalued) right.appendChild(buildBadge('MV','rgba(40,196,138,0.12)'));
+      if(c.derived) right.appendChild(buildBadge('DR','rgba(122,162,255,0.10)'));
+      li.appendChild(left);
+      li.appendChild(right);
+      ul.appendChild(li);
+    }
+    card.appendChild(ul);
+    card.addEventListener('click', (evt)=>{
+      if(evt.target.tagName.toLowerCase() === 'a') return;
+      ul.style.display = ul.style.display === 'none' ? '' : 'none';
+    });
+    container.appendChild(card);
+  }
+}
+
+function buildBadge(text,color){
+  const s = el('span','badge');
+  s.textContent = text;
+  
+  // Enhanced badge styling based on type
+  const badgeStyles = {
+    'PK': { bg: 'linear-gradient(135deg, #f6ad55, #ed8936)', color: 'white', icon: '🔑' },
+    'FK': { bg: 'linear-gradient(135deg, #4fd1c7, #38b2ac)', color: 'white', icon: '🔗' },
+    'NOT NULL': { bg: 'linear-gradient(135deg, #fc8181, #e53e3e)', color: 'white', icon: '❗' },
+    'MV': { bg: 'linear-gradient(135deg, #68d391, #48bb78)', color: 'white', icon: '◉' },
+    'DR': { bg: 'linear-gradient(135deg, #90cdf4, #4299e1)', color: 'white', icon: '⊕' }
+  };
+  
+  const style = badgeStyles[text] || { bg: color, color: 'var(--text-primary)', icon: '' };
+  s.style.background = style.bg;
+  s.style.color = style.color;
+  s.innerHTML = style.icon ? style.icon + ' ' + text : text;
+  
+  return s;
+}
+
+// ---------- ER rendering (Cytoscape) ----------
+let cy = null;
+
+function buildERElements(schema){
+  const elements = [];
+  for(const t of schema.tables){
+    if(!t.name) continue;
+    elements.push({ data: { id:'ent:' + t.name, label:t.name, type:'entity', name:t.name }});
+    for(const c of (t.columns||[])){
+      if(!c.name || String(c.name).trim()==='') continue;
+
+      let label = c.name;
+      if(c.primary_key) label = '🔑 ' + label;
+      if(c.multivalued) label = '◉ ' + label;
+      if(c.derived) label = '⊕ ' + label;
+
+      if(c.multivalued){
+        const outer = 'attr-outer-mv:' + t.name + '::' + c.name;
+        const inner = 'attr-inner:' + t.name + '::' + c.name;
+        elements.push({ data:{ id:outer, label, type:'attr-outer-mv', table:t.name, col:c.name }});
+        elements.push({ data:{ id:inner, label:'', type:'attribute-inner', table:t.name, col:c.name }});
+        elements.push({ data:{ id:'edge:ent-outer:' + t.name + ':' + c.name, source:'ent:' + t.name, target:outer, type:'attr-edge' }});
+        elements.push({ data:{ id:'edge:outer-inner:' + t.name + ':' + c.name, source:outer, target:inner, type:'outer-inner' }});
+      } else if(c.derived){
+        const outer = 'attr-outer-derived:' + t.name + '::' + c.name;
+        const inner = 'attr-inner:' + t.name + '::' + c.name;
+        elements.push({ data:{ id:outer, label, type:'attr-outer-derived', table:t.name, col:c.name }});
+        elements.push({ data:{ id:inner, label:'', type:'attribute-inner', table:t.name, col:c.name }});
+        elements.push({ data:{ id:'edge:ent-outer-derived:' + t.name + ':' + c.name, source:'ent:' + t.name, target:outer, type:'attr-edge' }});
+        elements.push({ data:{ id:'edge:outer-inner-derived:' + t.name + ':' + c.name, source:outer, target:inner, type:'outer-inner' }});
+      } else {
+        const attr = 'attr:' + t.name + '::' + c.name;
+        elements.push({ data:{ id:attr, label, type:'attribute', table:t.name, col:c.name }});
+        elements.push({ data:{ id:'edge:attr:' + t.name + ':' + c.name, source:'ent:' + t.name, target:attr, type:'attr-edge' }});
+      }
+    }
+  }
+
+  // relationships
+  let relIndex = 0;
+  const seen = new Set();
+  function addRel(relName, entities, cardinality){
+    const rid = 'rel:' + relIndex++ + ':' + relName;
+    elements.push({ data:{ id:rid, label:relName, type:'relationship', name:relName }});
+    for(const en of entities || []){
+      if(!en) continue;
+      const edgeId = 'edge:rel:' + rid + ':' + en;
+      const card = (cardinality && cardinality[en]) ? cardinality[en] : '';
+      elements.push({ data:{ id:edgeId, source:'ent:' + en, target:rid, type:'rel-edge', label:card }});
+    }
+  }
+  for(const r of (schema.relationships||[])){
+    const key = JSON.stringify({name:r.name, entities:(r.entities||[]).slice().sort()});
+    if(seen.has(key)) continue;
+    addRel(r.name||'rel', r.entities||[], r.cardinality||{});
+    seen.add(key);
+  }
+  return elements;
+}
+
+function renderDiagram(schema){
+  const elements = buildERElements(schema);
+  if(cy){ cy.destroy(); cy=null; }
+
+  cy = cytoscape({
+    container: q('cy'),
+    elements,
+    style: [
+      { selector:'node[type="entity"]', style:{
+        'shape':'round-rectangle','background-color':'#ffffff','label':'data(label)',
+        'text-valign':'center','text-halign':'center','color':'#050b2c','font-weight':'bold',
+        'padding':'10px 16px','width': ele => (ele.data('label')? ele.data('label').length*8+20:80),
+        'border-color':'#ffa509','border-width':3,'font-size':12,'z-index':5
+      }},
+      { selector:'node[type="attribute"]', style:{
+        'shape':'ellipse','background-color':'#fff7e6','label':'data(label)',
+        'text-valign':'center','text-halign':'center','color':'#1b1b1b','font-family':'monospace',
+        'padding':'8px','width': n => (n.data('label')? Math.max(40,n.data('label').length*8):60),
+        'height':40,'border-width':2,'border-color':'#ffd59a','font-size':11,'z-index':3
+      }},
+      { selector:'node[type="attribute-inner"]', style:{
+        'shape':'ellipse','background-color':'transparent','label':'',
+        'color':'transparent','padding':'0','width':54,'height':34,'border-width':0,
+        'font-size':0,'opacity':0.001,'z-index':1
+      }},
+      { selector:'node[type="attr-outer-mv"]', style:{
+        'shape':'ellipse','label':'data(label)','text-valign':'center','text-halign':'center',
+        'background-color':'#e8fff4','border-width':10,'border-color':'#2ac48a','color':'#063425',
+        'font-weight':'700','width': n => (n.data('label')? Math.max(110,n.data('label').length*8+20):110),
+        'height':72,'padding':12,'font-size':12,'z-index':2
+      }},
+      { selector:'node[type="attr-outer-derived"]', style:{
+        'shape':'ellipse','label':'data(label)','text-valign':'center','text-halign':'center',
+        'background-color':'#eaf2ff','border-width':4,'border-style':'dashed','border-color':'#3b82f6',
+        'color':'#032042','font-style':'italic','width': n => (n.data('label')? Math.max(100,n.data('label').length*8+10):100),
+        'height':60,'padding':10,'font-size':11,'z-index':2
+      }},
+      { selector:'node[type="relationship"]', style:{
+        'shape':'diamond','background-color':'#ffa509','label':'data(label)','color':'#050b2c',
+        'font-weight':'bold','text-valign':'center','text-halign':'center','padding':'8px',
+        'width': ele => (ele.data('label')? ele.data('label').length*7+16:60),
+        'border-color':'#050b2c','border-width':2,'font-size':11,'z-index':5
+      }},
+      { selector:'edge[type="attr-edge"]', style:{
+        'line-color':'#ffa509','width':2,'curve-style':'bezier','target-arrow-shape':'none','opacity':0.8,'z-index':1
+      }},
+      { selector:'edge[type="outer-inner"]', style:{ 'line-style':'dotted','opacity':0.0,'width':1,'z-index':0 }},
+      { selector:'edge[type="rel-edge"]', style:{
+        'line-color':'#050b2c','width':3,'curve-style':'bezier','label':'data(label)','font-size':11,
+        'text-rotation':'autorotate','text-margin-y':-6,'color':'#ffa509','font-weight':'bold','z-index':4
+      }},
+      { selector:':selected', style:{ 'background-color':'#ffa509','line-color':'#ffa509','target-arrow-color':'#ffa509','opacity':0.9 } }
+    ],
+    layout:{ name:'cose', animate:true, fit:true, idealEdgeLength:80, nodeOverlap:12 }
+  });
+
+  cy.on('tap','node[type="entity"]', evt=>{
+    const tableName = evt.target.data('name') || evt.target.data('label');
+    highlightTableCard(tableName);
+  });
+
+  q('fit').addEventListener('click', ()=>{ try{ cy.fit(); }catch(e){} });
+  q('layout-select').onchange = ()=>{ const l=q('layout-select').value; try{ cy.layout({name:l,animate:true}).run(); }catch(e){} };
+}
+
+// highlight card in glossary
+function highlightTableCard(tableName){
+  const cards = document.querySelectorAll('.table-card');
+  cards.forEach(c=>{
+    const h3 = c.querySelector('h3');
+    if(h3 && h3.textContent === tableName){
+      c.style.outline = '3px solid rgba(24,169,153,0.12)';
+      c.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(()=>{ c.style.outline=''; }, 2500);
+    }
+  });
+}
+
+// ---------- Exports (bold black headings) ----------
+function sanitizeGlossaryHTML(){
+  // clone glossary so we don’t touch live DOM
+  const clone = document.getElementById('glossary').cloneNode(true);
+  // force black text everywhere
+  clone.querySelectorAll('*').forEach(el=>{
+    el.style.color = '#000';
+  });
+  return clone.innerHTML;
+}
+
+function downloadHTMLSnapshot(){
+  try {
+    if (!cy) { alert('Please generate the diagram first by clicking "Parse & Generate"'); return; }
+    const pngDataUri = cy.png({ output: 'datauri', bg: '#ffffff', full: true, scale: 2 });
+    const glossaryHTML = sanitizeGlossaryHTML();
+
+    const cleanHTML = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Data Dictionary & ER Diagram</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body{font-family:Inter,system-ui,Arial;background:#fff;margin:0;padding:20px;color:#000}
+    h1{text-align:center;margin-bottom:20px;color:#000;font-weight:700}
+    h2{color:#000;font-weight:700;margin-top:0}
+    .panel{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .card{background:white;border-radius:8px;padding:16px;border:1px solid #ccc}
+    .diagram img{width:100%;height:100%;object-fit:contain}
+    .glossary{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;color:#000}
+    .table-card{background:#fff;border:1px solid #ccc;padding:12px;border-radius:8px;color:#000}
+    .table-card h3{margin:0 0 6px 0;font-size:16px;color:#000;font-weight:600}
+    .col-list{margin:0;padding:0;list-style:none;font-size:14px;color:#000}
+    .col-list li{padding:6px 8px;border-radius:6px;background:#f2f2f2;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;color:#000}
+    .badge{font-size:12px;padding:3px 6px;border-radius:6px;background:#ddd;color:#000}
+  </style>
+</head>
+<body>
+  <h1>Data Dictionary & ER Diagram</h1>
+  <div class="panel">
+    <div class="card">
+      <h2>Entity Relationship Diagram</h2>
+      <div class="diagram"><img src="${pngDataUri}" alt="ER Diagram"/></div>
+    </div>
+    <div class="card">
+      <h2>Data Dictionary</h2>
+      <div class="glossary">${glossaryHTML}</div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([cleanHTML], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'data-dictionary.html'; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 2000);
+  } catch (error) {
+    alert('Error exporting HTML: ' + error.message);
+  }
+}
+
+function downloadPDF(){
+  try {
+    if (!cy) { alert('Please generate the diagram first by clicking "Parse & Generate"'); return; }
+    const pngDataUri = cy.png({ output: 'datauri', bg: '#ffffff', full: true, scale: 2 });
+    const glossaryHTML = sanitizeGlossaryHTML();
+
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = `
+      <div style="max-width:1200px;margin:0 auto;padding:20px;font-family:Inter,system-ui,Arial;color:#000;background:#fff">
+        <style>
+          body{font-family:Inter,system-ui,Arial;background:#fff;margin:0;padding:20px;color:#000}
+          h1{text-align:center;margin-bottom:20px;color:#000;font-weight:700}
+          h2{color:#000;font-weight:700;margin-top:0}
+          .panel{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+          .card{background:white;border-radius:8px;padding:16px;border:1px solid #ccc}
+          .diagram img{width:100%;height:100%;object-fit:contain}
+          .glossary{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;color:#000}
+          .table-card{background:#fff;border:1px solid #ccc;padding:12px;border-radius:8px;color:#000}
+          .table-card h3{margin:0 0 6px 0;font-size:16px;color:#000;font-weight:600}
+          .col-list{margin:0;padding:0;list-style:none;font-size:14px;color:#000}
+          .col-list li{padding:6px 8px;border-radius:6px;background:#f2f2f2;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;color:#000}
+          .badge{font-size:12px;padding:3px 6px;border-radius:6px;background:#ddd;color:#000}
+        </style>
+        <h1>Data Dictionary & ER Diagram</h1>
+        <div class="panel">
+          <div class="card">
+            <h2>Entity Relationship Diagram</h2>
+            <div class="diagram"><img src="${pngDataUri}" alt="ER Diagram"/></div>
+          </div>
+          <div class="card">
+            <h2>Data Dictionary</h2>
+            <div class="glossary">${glossaryHTML}</div>
+          </div>
+        </div>
+      </div>`;
+
+    const opt = {
+      margin: 0.5,
+      filename: 'data-dictionary.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+    };
+    html2pdf().set(opt).from(tempContainer).save();
+  } catch (error) {
+    alert('Error exporting PDF: ' + error.message);
+  }
+}
+
+
+// ---------- File handling & UI wiring ----------
+q('file').addEventListener('change', function(evt){
+  const f = evt.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    q('input').value = e.target.result;
+    const name = f.name.toLowerCase();
+    if(name.endsWith('.xml')) q('format').value = 'xml';
+    else q('format').value = 'json';
+  };
+  reader.readAsText(f);
+});
+
+q('load-sample').addEventListener('click', ()=>{
+  q('format').value = 'json';
+  q('input').value = JSON.stringify(SAMPLE_SCHEMA_JSON, null, 2);
+});
+
+q('clear').addEventListener('click', ()=>{
+  q('input').value = '';
+  q('glossary').innerHTML = '';
+  if(cy){ cy.elements().remove(); cy.destroy(); cy=null; document.getElementById('cy').innerHTML=''; }
+});
+
+q('parse').addEventListener('click', ()=>{
+  const format = q('format').value;
+  const text = q('input').value.trim();
+  
+  // Enhanced validation
+  if(!text){
+    showError("Please paste or upload a schema input first.", "No Input Provided");
+    return;
+  }
+  
+  if(text.length < 10){
+    showError("The input seems too short to be a valid schema. Please check your input.", "Invalid Input Length");
+    return;
+  }
+  
+  // Clear previous results
+  q('glossary').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">⏳ Parsing schema...</div>';
+  if(cy){ cy.elements().remove(); }
+  
+  let schema;
+  try{
+    if(format === 'json'){ 
+      schema = parseJSONInput(text); 
+    } else { 
+      schema = parseXMLInput(text); 
+    }
+
+    // Enhanced validation
+    if(!schema.tables || schema.tables.length === 0) {
+      throw new Error("No tables found in schema. Please ensure your schema contains at least one table.");
+    }
+
+    const seen = new Set();
+    for(const t of schema.tables){
+      if(!t.name || typeof t.name !== 'string' || t.name.trim() === '') {
+        throw new Error("Every table must have a valid 'name' attribute.");
+      }
+      const key = t.name.toLowerCase();
+      if(seen.has(key)) {
+        throw new Error("Duplicate table name found: '" + t.name + "'. Table names must be unique.");
+      }
+      seen.add(key);
+      
+      if(!t.columns || t.columns.length === 0) {
+        console.warn("Table '" + t.name + "' has no columns defined.");
+      }
+    }
+
+    renderGlossary(schema);
+    renderDiagram(schema);
+    
+    // Success notification
+    showSuccess("Schema parsed successfully! Found " + schema.tables.length + " table(s) and " + (schema.relationships ? schema.relationships.length : 0) + " relationship(s).");
+    
+  }catch(err){
+    console.error("Schema parsing error:", err);
+    showError("Failed to parse schema: " + err.message + "\n\nPlease check your input format and try again.", "Parsing Error");
+    q('glossary').innerHTML = '<div style="text-align:center;color:var(--error);padding:20px;">❌ Failed to parse schema</div>';
+  }
+});
+
+// Helper functions for better user feedback
+function showError(message, title = "Error") {
+  const errorDiv = document.createElement('div');
+  errorDiv.style.cssText = `
+    position: fixed; top: 20px; right: 20px; z-index: 10000;
+    background: linear-gradient(135deg, var(--error), #dc3545);
+    color: white; padding: 16px 20px; border-radius: 8px;
+    box-shadow: var(--shadow-xl); max-width: 400px;
+    font-size: 14px; line-height: 1.4;
+  `;
+  errorDiv.innerHTML = `<strong>${title}</strong><br>${message}`;
+  document.body.appendChild(errorDiv);
+  setTimeout(() => errorDiv.remove(), 6000);
+}
+
+function showSuccess(message, title = "Success") {
+  const successDiv = document.createElement('div');
+  successDiv.style.cssText = `
+    position: fixed; top: 20px; right: 20px; z-index: 10000;
+    background: linear-gradient(135deg, var(--success), #38a169);
+    color: white; padding: 16px 20px; border-radius: 8px;
+    box-shadow: var(--shadow-xl); max-width: 400px;
+    font-size: 14px; line-height: 1.4;
+  `;
+  successDiv.innerHTML = `<strong>${title}</strong><br>${message}`;
+  document.body.appendChild(successDiv);
+  setTimeout(() => successDiv.remove(), 4000);
+}
+
+q('download-html').addEventListener('click', downloadHTMLSnapshot);
+q('download-pdf').addEventListener('click', downloadPDF);
+
+// Initialize with sample
+q('input').value = JSON.stringify(SAMPLE_SCHEMA_JSON, null, 2);
+(function init(){ q('parse').click(); })();
+</script>
+<script>function getTimestamp() {
+        return new Date().toISOString();
+    }
+
+    function getObjectType(target) {
+        if (target.tagName === 'BUTTON') return 'button';
+        if (target.tagName === 'IMG') return 'image';
+        if (target.tagName === 'SELECT') return 'drop_down';
+        if (target.tagName === 'A') return 'link';
+        if (target.tagName === 'INPUT') return 'input_field';
+        return 'text/other';
+    }
+
+    console.log({
+        timestamp: getTimestamp(),
+        type_of_event: "view",
+        event_object: "page_load"
+    });
+
+    document.addEventListener("click", function(event) {
+        console.log({
+            timestamp: getTimestamp(),
+            type_of_event: "click",
+            event_object: getObjectType(event.target)
+        });
+    });
+</script>
+</body>
+</html>

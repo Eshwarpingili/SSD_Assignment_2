@@ -1,0 +1,146 @@
+/* Defines CSS variables for colors to be reused throughout the stylesheet */
+:root {
+    --bg-color: #1a1a2e; /* Sets the main background color variable */
+    --red: #e03636; /* Sets the color for "Stop" elements */
+    --green: #27ae60; /* Sets the color for "Go" elements */
+    --font-color: #e0e0e0; /* Sets the primary text color */
+    --button-bg: #16213e; /* Sets the default background color for buttons */
+    --button-hover: #0f3460; /* Sets the button background color on hover */
+    --container-bg: #2c2c54; /* Sets the background for containers */
+    --light-grey: #4a4e69; /* Sets a light grey color for secondary elements */
+}
+
+/* Styles the body of the webpage */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Sets the font for the page */
+    background-color: var(--bg-color); /* Applies the background color from variables */
+    color: var(--font-color); /* Applies the font color from variables */
+    display: flex; /* Uses flexbox for layout */
+    flex-direction: column; /* Arranges flex items vertically */
+    justify-content: center; /* Centers content along the vertical axis */
+    align-items: center; /* Centers content along the horizontal axis */
+    min-height: 100vh; /* Sets the minimum height to the full viewport height */
+    margin: 0; /* Removes default body margin */
+    padding: 20px; /* Adds padding around the body content */
+    box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+}
+
+/* Styles the main container for the game elements */
+.game-container {
+    background-color: var(--container-bg); /* Sets the container's background color */
+    padding: 2rem 3rem; /* Adds padding inside the container */
+    border-radius: 15px; /* Rounds the corners of the container */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Adds a shadow effect to the container */
+    text-align: center; /* Centers the text inside the container */
+    width: 100%; /* Makes the container take up the full width of its parent */
+    max-width: 450px; /* Sets a maximum width for the container */
+}
+
+/* Styles the main heading */
+h1 {
+    margin-top: 0; /* Removes the top margin from the heading */
+    color: #ffffff; /* Sets the heading color to white */
+}
+
+/* Styles the text that shows game status messages */
+#status-display {
+    font-size: 1.5rem; /* Sets the font size */
+    font-weight: bold; /* Makes the font bold */
+    min-height: 50px; /* Ensures the element has a minimum height to prevent layout shifts */
+    display: flex; /* Uses flexbox for layout */
+    align-items: center; /* Vertically centers the text */
+    justify-content: center; /* Horizontally centers the text */
+    margin-bottom: 1rem; /* Adds margin below the status display */
+}
+
+/* Styles the container for displaying scores */
+.scores {
+    display: flex; /* Uses flexbox for layout */
+    justify-content: space-around; /* Distributes items evenly */
+    font-size: 1.2rem; /* Sets the font size */
+    font-weight: bold; /* Makes the font bold */
+    background: var(--bg-color); /* Sets a background color to make it stand out */
+    padding: 1rem; /* Adds padding */
+    border-radius: 10px; /* Rounds the corners */
+    margin-bottom: 1.5rem; /* Adds margin below the score display */
+}
+
+/* Styles the paragraphs that show player choices */
+.choices p {
+    min-height: 25px; /* Ensures a minimum height to prevent layout shifts */
+    font-style: italic; /* Italicizes the text */
+    color: #c7c7c7; /* Sets a light grey color for the text */
+}
+
+/* Styles the container for the main action buttons */
+.button-group {
+    display: flex; /* Uses flexbox for layout */
+    justify-content: center; /* Centers the buttons horizontally */
+    gap: 20px; /* Adds space between the buttons */
+    margin: 1.5rem 0; /* Adds margin above and below the button group */
+}
+
+/* Styles the main choice buttons ("Go" and "Stop") */
+.choice-btn {
+    font-size: 1.5rem; /* Sets the font size */
+    padding: 20px 40px; /* Adds padding inside the button */
+    border-radius: 10px; /* Rounds the corners */
+    border: 2px solid transparent; /* Sets a transparent border */
+    cursor: pointer; /* Changes the cursor to a pointer on hover */
+    transition: all 0.2s ease; /* Adds a smooth transition for all properties */
+    flex-grow: 1; /* Allows buttons to grow and fill available space equally */
+}
+
+/* Styles the "Go" button specifically */
+#go-btn {
+    background-color: var(--green); /* Sets the background color to green */
+    color: white; /* Sets the text color to white */
+    border-color: var(--green); /* Sets the border color to green */
+}
+
+/* Styles the "Go" button on hover */
+#go-btn:hover {
+    background-color: #2ecc71; /* Lightens the background color on hover */
+}
+
+/* Styles the "Stop" button specifically */
+#stop-btn {
+    background-color: var(--red); /* Sets the background color to red */
+    color: white; /* Sets the text color to white */
+    border-color: var(--red); /* Sets the border color to red */
+}
+
+/* Styles the "Stop" button on hover */
+#stop-btn:hover {
+    background-color: #e74c3c; /* Lightens the background color on hover */
+}
+
+/* Styles the "Reset" button */
+#reset-btn {
+    font-size: 1.1rem; /* Sets the font size */
+    padding: 10px 20px; /* Adds padding */
+    margin-top: 1rem; /* Adds margin on top */
+    border-radius: 50px; /* Makes the button have rounded edges */
+    border: none; /* Removes the default border */
+    cursor: pointer; /* Changes the cursor to a pointer on hover */
+    background-color: var(--light-grey); /* Sets the background color */
+    color: var(--font-color); /* Sets the text color */
+    transition: background-color 0.3s, transform 0.1s; /* Adds smooth transitions for hover effects */
+    width: 60%; /* Sets the width of the button */
+}
+
+/* Styles the "Reset" button on hover */
+#reset-btn:hover {
+    background-color: var(--button-hover); /* Changes the background color on hover */
+}
+
+/* Styles the explanation text section */
+.explanation {
+    margin-top: 2rem; /* Adds margin on top */
+    max-width: 600px; /* Sets a maximum width for readability */
+    text-align: left; /* Aligns the text to the left */
+    background: var(--container-bg); /* Sets a background color */
+    padding: 1.5rem; /* Adds padding */
+    border-radius: 15px; /* Rounds the corners */
+}
+
