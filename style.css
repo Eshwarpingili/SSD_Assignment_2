@@ -1,0 +1,165 @@
+/* 1. FONT-FACE RULES FOR LOCAL GILROY FONTS */
+/* Assumes you have Gilroy-Light.woff, Gilroy-Regular.woff, and Gilroy-Bold.woff in a 'fonts' folder */
+@font-face {
+    font-family: 'Gilroy';
+    src: url('fonts/Gilroy-Light.woff') format('woff');
+    font-weight: 300; /* Light */
+}
+@font-face {
+    font-family: 'Gilroy';
+    src: url('fonts/Gilroy-Regular.woff') format('woff');
+    font-weight: 400; /* Regular */
+}
+@font-face {
+    font-family: 'Gilroy';
+    src: url('fonts/Gilroy-Bold.woff') format('woff');
+    font-weight: 700; /* Bold */
+}
+
+
+/* 2. BRIGHT COLOR PALETTE & FONT DEFINITIONS */
+:root {
+    --primary-font: 'Gilroy', sans-serif;
+    --text-color: #142136;      /* Dark Navy for high contrast text */
+    --primary-bright: #00B8D9;   /* Bright Cyan for headers */
+    --bg-color: #ebebec;        /* Very light grey page background */
+    --header-bg: #e1dfdf;       /* White for sections */
+    --border-color: #afb0b2;    /* Soft grey for borders */
+
+    /* Section Accent Colors */
+    --color-about: #00B8D9;      /* Cyan */
+    --color-lecture: #36B37E;    /* Green */
+    --color-policy: #6554C0;     /* Purple */
+    --color-schedule: #FFAB00;   /* Amber */
+    --color-lab: #FF7452;        /* Orange */
+    --color-exams: #DE350B;      /* Red */
+    --color-staff: #0747A6;      /* Blue */
+}
+
+
+/* 3. GENERAL BODY & TYPOGRAPHY */
+body {
+    font-family: var(--primary-font);
+    font-weight: 400; /* Regular */
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 20px;
+}
+
+/* Override deprecated font tags */
+font {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    color: inherit !important;
+}
+
+
+/* 4. MAIN LAYOUT & SECTIONS */
+body > table {
+    max-width: 1000px;
+    width: 100%;
+    border: none !important;
+    background-color: var(--header-bg);
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.07);
+    border-spacing: 0 !important;
+}
+
+/* General style for each content cell */
+body > table > tbody > tr > td {
+    padding: 2rem 2.5rem !important;
+    border-left: 5px solid transparent; /* Prepare for the color accent */
+    border-bottom: 1px solid var(--border-color);
+}
+body > table > tbody > tr:last-child > td {
+    border-bottom: none;
+}
+
+hr { display: none; }
+
+/* === VISUAL DIFFERENTIATION FOR SECTIONS === */
+/* Using the :has() selector to target the parent TD based on the ID of the child <b> tag */
+td:has(b#about) { border-left-color: var(--color-about); }
+td:has(b#lecture) { border-left-color: var(--color-lecture); }
+td:has(b#cpolicy) { border-left-color: var(--color-policy); }
+td:has(b#schedule) { border-left-color: var(--color-schedule); }
+td:has(b#lab) { border-left-color: var(--color-lab); }
+td:has(b#activity) { border-left-color: var(--color-exams); }
+td:has(b#staff) { border-left-color: var(--color-staff); }
+
+/* Style the <b> tags to look like modern section headers */
+p > b[id] {
+    font-size: 1.75rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 1rem;
+}
+/* Colorize each header to match its section's border */
+p > b#about { color: var(--color-about); }
+p > b#lecture { color: var(--color-lecture); }
+p > b#cpolicy { color: var(--color-policy); }
+p > b#schedule { color: var(--color-schedule); }
+p > b#lab { color: var(--color-lab); }
+p > b#activity { color: var(--color-exams); }
+p > b#staff { color: var(--color-staff); }
+
+
+/* 5. HEADER & NAVIGATION */
+h1#home {
+    font-weight: 700;
+    color: var(--text-color);
+}
+h3 {
+    font-weight: 400;
+    color: #6B778C; /* Softer grey for subtitles */
+}
+
+/* Navigation Links */
+td > a[href^="#"] {
+    margin: 0 10px;
+    padding-bottom: 5px;
+    text-decoration: none;
+    font-weight: 700;
+    color: #505F79;
+    transition: all 0.2s ease-in-out;
+}
+td > a[href^="#"]:hover {
+    color: var(--primary-bright);
+}
+
+/* 6. DATA TABLES (Lectures, Labs, Exams) */
+td table {
+    width: 100% !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px;
+    overflow: hidden;
+    border-spacing: 0 !important;
+}
+
+td table th {
+    background-color: var(--primary-bright);
+    color: white;
+    padding: 12px 15px;
+    text-align: center;
+    font-weight: 700;
+}
+
+td table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+}
+
+td table tr:hover td {
+    background-color: #EAF6F8; /* Light cyan on hover */
+}
+
+.light-text-row {
+    color: #888 !important;
+    font-style: italic;
+    font-weight: 300;
+}
